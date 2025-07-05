@@ -39,6 +39,10 @@ from io import BytesIO
 from pygame import mixer
 import time
 
+# USB Audio
+os.environ['SDL_AUDIODRIVER'] = 'alsa'
+os.environ['AUDIODEV'] = 'plughw:Device,0'
+
 SOURCE_DIR = Path(__file__).parent
 log_file_path = SOURCE_DIR / "events.log"
 
