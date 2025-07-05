@@ -1,6 +1,6 @@
 #!/bin/bash
 
-latest_release=$(curl -s https://api.github.com/repos/judahpaul16/gpt-home/releases/latest | grep 'tag_name' | cut -d\" -f4)
+latest_release=$(curl -s https://api.github.com/rdougla3/dms-bot/releases/latest | grep 'tag_name' | cut -d\" -f4)
 
 # Colors
 RED='\033[0;31m'
@@ -16,7 +16,7 @@ echo ""
 echo -e "${MAGENTA}"
 echo "GPT Home $latest_release"
 echo "Created by Judah Paul"
-echo "More info @ https://github.com/judahpaul16/gpt-home/"
+echo "More info @ https://github.com/rdougla3/dms-bot"
 echo -e "${NC}"
 
 echo -e "${GREEN}"
@@ -151,7 +151,7 @@ echo "y" | sudo ufw enable
 # Setup NGINX for reverse proxy
 echo "Setting up NGINX..."
 sudo mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
-sudo tee /etc/nginx/sites-available/gpt-home <<EOF
+sudo tee /etc/nginx/sites-available/dms-bot <<EOF
 server {
     listen 80;
     location / {
@@ -163,33 +163,33 @@ server {
 }
 EOF
 
-# Remove gpt-home site symlink if it exists
-[ -L "/etc/nginx/sites-enabled/gpt-home" ] && sudo unlink /etc/nginx/sites-enabled/gpt-home
+# Remove dms-bot site symlink if it exists
+[ -L "/etc/nginx/sites-enabled/dms-bot" ] && sudo unlink /etc/nginx/sites-enabled/dms-bot
 
 # Remove the default site if it exists
 [ -L "/etc/nginx/sites-enabled/default" ] && sudo unlink /etc/nginx/sites-enabled/default
 
-# Create a symlink to the gpt-home site and reload NGINX
-sudo ln -s /etc/nginx/sites-available/gpt-home /etc/nginx/sites-enabled
+# Create a symlink to the dms-bot site and reload NGINX
+sudo ln -s /etc/nginx/sites-available/dms-bot /etc/nginx/sites-enabled
 sudo systemctl enable nginx
 sudo nginx -t && sudo systemctl restart nginx
 
 sudo systemctl status --no-pager nginx
 
 if [[ "$1" != "--no-build" ]]; then
-    [ -d ~/gpt-home ] && rm -rf ~/gpt-home
-    git clone https://github.com/judahpaul16/gpt-home ~/gpt-home
-    cd ~/gpt-home
-    echo "Checking if the container 'gpt-home' is already running..."
-    if [ $(docker ps -q -f name=gpt-home) ]; then
-        echo "Stopping running container 'gpt-home'..."
-        docker stop gpt-home
+    [ -d ~/dms-bot ] && rm -rf ~/dms-bot
+    git clone https://github.com/rdougla3/dms-bot ~/dms-bot
+    cd ~/dms-bot
+    echo "Checking if the container 'dms-bot' is already running..."
+    if [ $(docker ps -q -f name=dms-bot) ]; then
+        echo "Stopping running container 'dms-bot'..."
+        docker stop dms-bot
     fi
 
-    echo "Checking for existing container 'gpt-home'..."
-    if [ $(docker ps -aq -f status=exited -f name=gpt-home) ]; then
-        echo "Removing existing container 'gpt-home'..."
-        docker rm -f gpt-home
+    echo "Checking for existing container 'dms-bot'..."
+    if [ $(docker ps -aq -f status=exited -f name=dms-bot) ]; then
+        echo "Removing existing container 'dms-bot'..."
+        docker rm -f dms-bot
     fi
 
     echo "Pruning Docker system..."
@@ -201,46 +201,46 @@ if [[ "$1" != "--no-build" ]]; then
         docker buildx inspect --bootstrap
     fi
 
-    # Building Docker image 'gpt-home' for ARMhf architecture
-    echo "Building Docker image 'gpt-home' for ARMhf..."
-    timeout 3600 docker buildx build --platform linux/arm64 -t gpt-home --load .
+    # Building Docker image 'dms-bot' for ARMhf architecture
+    echo "Building Docker image 'dms-bot' for ARMhf..."
+    timeout 3600 docker buildx build --platform linux/arm64 -t dms-bot --load .
 
     if [ $? -ne 0 ]; then
         echo "Docker build failed. Exiting..."
         exit 1
     fi
 
-    echo "Container 'gpt-home' is now ready to run."
+    echo "Container 'dms-bot' is now ready to run."
 
-    echo "Running container 'gpt-home' from image 'gpt-home'..."
-    docker run --restart unless-stopped -d --name gpt-home \
+    echo "Running container 'dms-bot' from image 'dms-bot'..."
+    docker run --restart unless-stopped -d --name dms-bot \
         --mount type=bind,source=/etc/asound.conf,target=/etc/asound.conf \
         --privileged \
         --net=host \
         --tmpfs /run \
         --tmpfs /run/lock \
-        -v ~/gpt-home:/app \
+        -v ~/dms-bot:/app \
         -v /dev/snd:/dev/snd \
         -v /dev/shm:/dev/shm \
         -v /usr/share/alsa:/usr/share/alsa \
         -v /var/run/dbus:/var/run/dbus \
-        gpt-home
+        dms-bot
 
-    echo "Container 'gpt-home' is now running."
+    echo "Container 'dms-bot' is now running."
 
     # Show status of the container
-    docker ps -a | grep gpt-home
+    docker ps -a | grep dms-bot
 
     sleep 10
 
     # Show status of all programs managed by Supervisor
-    docker exec -i gpt-home supervisorctl status
+    docker exec -i dms-bot supervisorctl status
 fi
 
 if [[ "$1" == "--no-build" ]]; then
-    docker ps -aq -f name=gpt-home | xargs -r docker rm -f
-    docker pull judahpaul/gpt-home
-    docker run --restart unless-stopped -d --name gpt-home \
+    docker ps -aq -f name=dms-bot | xargs -r docker rm -f
+    docker pull rdougla3/dms-bot
+    docker run --restart unless-stopped -d --name dms-bot \
         --mount type=bind,source=/etc/asound.conf,target=/etc/asound.conf \
         --privileged \
         --net=host \
@@ -250,8 +250,8 @@ if [[ "$1" == "--no-build" ]]; then
         -v /dev/shm:/dev/shm \
         -v /usr/share/alsa:/usr/share/alsa \
         -v /var/run/dbus:/var/run/dbus \
-        judahpaul/gpt-home
-    docker ps -a | grep gpt-home
+        dougla3/dms-bot
+    docker ps -a | grep dms-bot
     sleep 10
-    docker exec -i gpt-home supervisorctl status
+    docker exec -i dms-bot supervisorctl status
 fi
