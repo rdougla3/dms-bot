@@ -83,7 +83,7 @@ engine = pyttsx3.init()
 engine.setProperty('rate', 145)
 engine.setProperty('volume', 1.0)
 # Direct audio to specific hardware
-engine.setProperty('alsa_device', 'hw:Headphones,0')
+engine.setProperty('alsa_device', 'hw:3,0')
 speak_lock = asyncio.Lock()
 display_lock = asyncio.Lock()
 
